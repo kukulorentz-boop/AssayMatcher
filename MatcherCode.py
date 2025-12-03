@@ -83,6 +83,7 @@ if master_file and unfilled_file:
                 continue
 
             q_idx = [q.lower().strip() for q in qa_questions].index(match_q[0])
+            print(q_inx)
             answer_col = qa_answers[q_idx].strip().lower()
 
             if answer_col not in master_df.columns:
