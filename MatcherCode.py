@@ -76,17 +76,26 @@ if master_file and unfilled_file:
             if not question or not str(question).strip():
                 continue
 
-            match_q = difflib.get_close_matches(str(question).strip().lower(),
-                                                [q.lower().strip() for q in qa_questions], n=1, cutoff=0.6)
+            match_q = difflib.get_close_matches(
+                str(question).strip().lower(),
+                [q.lower().strip() for q in qa_questions],
+                n=1,
+                cutoff=0.6
+            )
+
             if not match_q:
                 unmatched_questions.append(question)
                 continue
 
+            q_idx = [q.lower().strip() for q in qa_questions].index(match_q[0])
+
+    
             if q_idx >= len(qa_answers):
                 unmatched_questions.append(f"{question} → no mapped answer")
                 continue
-            
+    
             answer_col = qa_answers[q_idx].strip().lower()
+
 
             if answer_col not in master_df.columns:
                 unmatched_questions.append(f"{question} → {answer_col} (not in master)")
