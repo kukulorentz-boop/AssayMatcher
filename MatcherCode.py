@@ -52,8 +52,8 @@ if master_file and unfilled_file:
 
         # ------------------ LOAD QA SHEET ------------------
         qa_df = pd.read_excel(master_file, sheet_name=QA_SHEET, header=None)
-        qa_questions = qa_df.iloc[0].dropna().astype(str).tolist()
-        qa_answers = qa_df.iloc[1].dropna().astype(str).tolist()
+        qa_questions = qa_df.iloc[0].astype(str).tolist()
+        qa_answers   = qa_df.iloc[1].astype(str).tolist()
 
         # ------------------ FUZZY MATCH ------------------
         def find_best_test_match(text, cutoff=0.6):
@@ -82,8 +82,10 @@ if master_file and unfilled_file:
                 unmatched_questions.append(question)
                 continue
 
-            q_idx = [q.lower().strip() for q in qa_questions].index(match_q[0])
-            print(q_idx)
+            if q_idx >= len(qa_answers):
+                unmatched_questions.append(f"{question} → no mapped answer")
+                continue
+            
             answer_col = qa_answers[q_idx].strip().lower()
 
             if answer_col not in master_df.columns:
