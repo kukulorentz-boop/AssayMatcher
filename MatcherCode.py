@@ -4,6 +4,31 @@ import difflib
 from openpyxl import load_workbook
 import io
 
+# --- ACCESS CONTROL ---
+ALLOWED_DOMAIN = "@siemens-healthineers.com"
+
+def check_access():
+    if st.session_state.get("authenticated"):
+        return True
+    
+    st.set_page_config(page_title="Access Required", page_icon="🔒")
+    st.title("🔒 Siemens Healthineers Access Only")
+    email = st.text_input("Enter your company email")
+    
+    if st.button("Continue"):
+        if email.lower().endswith(ALLOWED_DOMAIN):
+            st.session_state["authenticated"] = True
+            st.session_state["email"] = email
+            st.rerun()
+        else:
+            st.error("Access restricted to Siemens Healthineers accounts only")
+    
+    return False
+
+if not check_access():
+    st.stop()
+# --- END ACCESS CONTROL ---
+
 st.set_page_config(page_title="Excel Auto-Filler", page_icon="📘", layout="wide")
 st.title("📘 Excel Auto-Filler from Master Dataset")
 st.markdown("""
@@ -35,7 +60,6 @@ if master_file and unfilled_file:
             if c not in master_df.columns:
                 master_df[c] = ""
 
-        # Alias map and test info
         alias_map = {}
         for _, row in master_df.iterrows():
             names = [
@@ -89,13 +113,11 @@ if master_file and unfilled_file:
 
             q_idx = [q.lower().strip() for q in qa_questions].index(match_q[0])
 
-    
             if q_idx >= len(qa_answers):
                 unmatched_questions.append(f"{question} → no mapped answer")
                 continue
-    
-            answer_col = qa_answers[q_idx].strip().lower()
 
+            answer_col = qa_answers[q_idx].strip().lower()
 
             if answer_col not in master_df.columns:
                 unmatched_questions.append(f"{question} → {answer_col} (not in master)")
